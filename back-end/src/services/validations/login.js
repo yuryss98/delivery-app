@@ -5,7 +5,7 @@ const login = (email, password) => {
     throw new CustomError('BAD_REQUEST', 'All fields must be filled');
   }
 
-  const isValidEmail = email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{3})$/i);
+  const isValidEmail = email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com)(\.br)?$/i);
 
   if (!isValidEmail) {
     throw new CustomError('UNAUTHORIZED', 'Email is in invalid format');
