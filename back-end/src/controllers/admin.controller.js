@@ -12,11 +12,11 @@ const createUser = async (req, res, next) => {
 
 const getAllUsers = async (_req, res, next) => {
   try {
-    console.log('dentro do admin controller')
+    console.log('dentro do admin controller');
     const output = await userService.getAllUsers();
     return res.status(200).json(output);
   } catch (error) {
-    console.log('error admin controller', error)
+    console.log('error admin controller', error);
     return next(error);
   }
 };
