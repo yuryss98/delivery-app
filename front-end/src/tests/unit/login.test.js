@@ -68,8 +68,7 @@ describe('Login screen tests:', () => {
     // const senhaErrada = screen.getByText(/Invalid email or password/i);
     // const senhaErrada = await screen.getByPlaceholderText(/Invalid email or password/i);
     await waitFor(() => {
-      const senhaErrada = screen.getByText(/Invalid email or password/i);
-      expect(senhaErrada).toBeInTheDocument();
+      expect(screen.getByText('Invalid email or password').toBeInTheDocument());
     });
 
     expect(hiddenElement).toBeInTheDocument();
