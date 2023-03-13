@@ -6,7 +6,7 @@ function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [disabled, setDisabled] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [isNameValid, setIsNameValid] = useState(false);
@@ -14,7 +14,7 @@ function Register() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const emailRegex = /^([\w.%+-]+)@([\w-]+\.)+([\w]{3})$/i;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com)(\.br)?$/i;
     const passwordRegex = /^.{6,}$/;
     const twelve = 12;
     const nameRegex = name.length >= twelve;
@@ -27,9 +27,9 @@ function Register() {
 
   useEffect(() => {
     if (isEmailValid && isPasswordValid && isNameValid) {
-      setDisabled(false);
+      setIsDisabled(false);
     } else {
-      setDisabled(true);
+      setIsDisabled(true);
     }
   }, [isEmailValid, isPasswordValid, isNameValid]);
 
@@ -76,7 +76,7 @@ function Register() {
         type="button"
         data-testid="common_register__button-register"
         onClick={ handleBtnOnClick }
-        disabled={ disabled }
+        disabled={ isDisabled }
       >
         CADASTRAR
 
