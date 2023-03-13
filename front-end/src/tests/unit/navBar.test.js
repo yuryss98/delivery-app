@@ -4,19 +4,13 @@ import renderWithRouter from '../helpers/renderWithRouter';
 import App from '../../App';
 
 describe('Test navbar used on all pages', () => {
-  // todos data-testid da navbar
-  const productsBtnDtid = 'customer_products__element-navbar-link-products';
-  const ordesBtnDtid = 'customer_products__element-navbar-link-orders';
-  const nameBtnDtid = 'customer_products__element-navbar-user-full-name';
-  const logoutBtnDtid = 'customer_products__element-navbar-link-logout';
-
-  it('tests the common inputs', () => {
+  it('Test the common inputs', () => {
     renderWithRouter(<App />, { route: '/customer/products' });
 
-    const productsBtn = screen.getByTestId(productsBtnDtid);
-    const ordesBtn = screen.getByTestId(ordesBtnDtid);
-    const nameBtn = screen.getByTestId(nameBtnDtid);
-    const logoutBtn = screen.getByTestId(logoutBtnDtid);
+    const productsBtn = screen.getByTestId(/customer_products__element-navbar-link-products/i);
+    const ordesBtn = screen.getByTestId(/customer_products__element-navbar-link-orders/i);
+    const nameBtn = screen.getByTestId(/customer_products__element-navbar-user-full-name/i);
+    const logoutBtn = screen.getByTestId(/customer_products__element-navbar-link-logout/i);
 
     expect(productsBtn).toBeInTheDocument();
     expect(ordesBtn).toBeInTheDocument();
@@ -27,7 +21,7 @@ describe('Test navbar used on all pages', () => {
   it('test the specific titles for admin', () => {
     renderWithRouter(<App />, { route: '/admin/manage' });
 
-    const ordesBtn = screen.getByTestId(ordesBtnDtid);
+    const ordesBtn = screen.getByTestId(/customer_products__element-navbar-link-orders/i);
     const gerenciarUsuarios = screen.getByText('GERENCIAR USUÁRIOS');
 
     expect(ordesBtn).toBeInTheDocument();
