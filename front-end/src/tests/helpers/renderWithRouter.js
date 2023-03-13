@@ -37,26 +37,3 @@ const renderWithRouter = (ui, { route = '/' } = {}) => {
 };
 
 export default renderWithRouter;
-
-// e no teste fica:
-// test('full app rendering/navigating', async () => {
-//     const {user} = renderWithRouter(<App />)
-//     expect(screen.getByText(/you are home/i)).toBeInTheDocument()
-
-//     await user.click(screen.getByText(/about/i))
-
-//     expect(screen.getByText(/you are on the about page/i)).toBeInTheDocument()
-//   })
-
-//   test('landing on a bad page', () => {
-//     renderWithRouter(<App />, {route: '/something-that-does-not-match'})
-
-//     expect(screen.getByText(/no match/i)).toBeInTheDocument()
-//   })
-
-//   test('rendering a component that uses useLocation', () => {
-//     const route = '/some-route'
-//     renderWithRouter(<LocationDisplay />, {route})
-
-//     expect(screen.getByTestId('location-display')).toHaveTextContent(route)
-//   })
