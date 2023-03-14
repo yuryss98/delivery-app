@@ -1,102 +1,126 @@
 import React from 'react';
-import {
-  screen,
-  // waitFor,
-} from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-// import axiosMock from 'axios';
+import { useNavigate } from 'react-router-dom';
 import renderWithRouter from '../helpers/renderWithRouter';
-import App from '../../App';
+import Login from '../../auth/login';
+import { requestLogin } from '../../utils/apiConnection';
 
-describe('Login screen tests:', () => {
-  beforeEach(() => {
+jest.mock('../../utils/apiConnection', () => ({
+  requestLogin: jest.fn(),
+}));
+
+jest.mock('react-router-dom', () => ({
+  useNavigate: jest.fn(),
+}));
+
+describe('Login Page tests:', () => {
+  beforeAll(() => {
+    jest.clearAllMocks();
     localStorage.removeItem('user');
   });
-  it('testing the Email and Password input elements', () => {
-    // const { history } = renderWithRouter(<App />);
-    // history.push('/login');
+  it('Test the elements are rendered and if login button are disabled', () => {
+    renderWithRouter(<Login />, { route: '/login' });
 
-    renderWithRouter(<App />, { route: '/login' });
+    expect(window.location.pathname).toBe('/login');
+    expect(screen.getByTestId(/common_login__input-email/i)).toBeInTheDocument();
+    expect(screen.getByTestId(/common_login__input-password/i)).toBeInTheDocument();
+    expect(screen.getByTestId(/common_login__button-login/i)).toBeInTheDocument();
+    expect(screen.getByTestId(/common_login__button-login/i)).toBeDisabled();
+    expect(screen.getByTestId(/common_login__button-register/i)).toBeInTheDocument();
+    expect(screen.getByTestId('common_login__element-invalid-email'))
+      .toBeInTheDocument();
+  });
+  it('Test if change path if click on register button', async () => {
+    const navigateMock = jest.fn();
+    useNavigate.mockReturnValue(navigateMock);
+    renderWithRouter(<Login />, { route: '/login' });
+
+    expect(window.location.pathname).toBe('/login');
+    await userEvent.click(screen.getByTestId(/common_login__button-register/i));
+
+    expect(navigateMock).toHaveBeenCalledWith('/register');
+  });
+  it('Test if the button are disabled if one field is invalid', async () => {
+    renderWithRouter(<Login />, { route: '/login' });
     const inputEmail = screen.getByTestId(/common_login__input-email/i);
     const inputPass = screen.getByTestId(/common_login__input-password/i);
 
-    expect(inputEmail).toBeInTheDocument();
-    expect(inputPass).toBeInTheDocument();
+    await userEvent.type(inputEmail, 'miguel@trybe.com');
+    await userEvent.type(inputPass, '12');
+
+    expect(screen.getByTestId(/common_login__button-login/i)).toBeDisabled();
   });
-
-  it('Login and Registration buttons rendered', () => {
-    renderWithRouter(<App />, { route: '/login' });
-
-    const loginBtn = screen.getByTestId(/common_login__button-login/i);
-    const registerBtn = screen.getByTestId(/common_login__button-register/i);
-
-    expect(loginBtn).toBeInTheDocument();
-    expect(registerBtn).toBeInTheDocument();
-  });
-
-  it('Login button is disabled', () => {
-    renderWithRouter(<App />, { route: '/login' });
-
+  it('Test Login with Invalid Email', async () => {
+    const errorMessage = 'Invalid email or password';
+    requestLogin.mockRejectedValueOnce({ response: { data: { message: errorMessage } } });
+    renderWithRouter(<Login />, { route: '/login' });
     const inputEmail = screen.getByTestId(/common_login__input-email/i);
     const inputPass = screen.getByTestId(/common_login__input-password/i);
-    const loginBtn = screen.getByTestId(/common_login__button-login/i);
+    const loginButton = screen.getByTestId(/common_login__button-login/i);
 
-    // expect(loginBtn).toBeDisabled();
-
-    userEvent.type(inputEmail, 'leandrojamir@t');
-    userEvent.type(inputPass, '1234');
-
-    expect(loginBtn).toBeDisabled();
+    await userEvent.type(inputEmail, 'miguelvieira@trybe.com');
+    await userEvent.type(inputPass, '123456');
+    await userEvent.click(loginButton);
+    expect(requestLogin).toHaveBeenCalledWith('/login', {
+      email: 'miguelvieira@trybe.com',
+      password: '123456',
+    });
+    expect(screen.getByTestId('common_login__element-invalid-email'))
+      .toHaveTextContent(errorMessage);
   });
+  it('should navigate to "/seller/orders" for seller role', async () => {
+    const navigateMock = jest.fn();
+    const response = { role: 'seller' };
+    requestLogin.mockResolvedValueOnce(response);
+    useNavigate.mockReturnValue(navigateMock);
 
-  it('Teste hidden element', async () => {
-    // // e dica para usar o navigate esta em
-    // // http://pawelgoscicki.com/archives/2022/05/testing-usenavigate-navigate-from-react-router-v6/
-    // // dica mentoria com Danilo, falta mockar conexão com backend
-    // // https://www.webtips.dev/webtips/jest/mock-function-return-values
-    // renderWithRouter(<App />, { route: '/login' });
+    renderWithRouter(<Login />, { route: '/login' });
+    const inputEmail = screen.getByTestId(/common_login__input-email/i);
+    const inputPass = screen.getByTestId(/common_login__input-password/i);
+    const loginButton = screen.getByTestId(/common_login__button-login/i);
 
-    // const inputEmail = screen.getByTestId(/common_login__input-email/i);
-    // const inputPass = screen.getByTestId(/common_login__input-password/i);
-    // const loginBtn = screen.getByTestId(/common_login__button-login/i);
+    await userEvent.type(inputEmail, 'fulana@deliveryapp.com');
+    await userEvent.type(inputPass, 'fulana@123');
+    await userEvent.click(loginButton);
 
-    // userEvent.type(inputEmail, { target: { value: 'zebirita@email.com' } });
-    // userEvent.type(inputPass, { target: { value: '$#zebirita#$' } });
-    // userEvent.click(loginBtn);
-    // // await waitFor(() => userEvent.click(loginBtn));
+    expect(localStorage.getItem('user')).toBe(JSON.stringify(response));
+    expect(navigateMock).toHaveBeenCalledWith('/seller/orders');
+  });
+  it('should navigate to "/admin/manage" for administrator role', async () => {
+    const navigateMock = jest.fn();
+    const response = { role: 'administrator' };
+    useNavigate.mockReturnValue(navigateMock);
+    requestLogin.mockResolvedValueOnce(response);
 
-    // // userEvent.type(inputEmail, 'fulana@deliveryapp.com');
-    // // userEvent.type(inputPass, 'senhaErrada');
-    // // userEvent.click(loginBtn);
+    renderWithRouter(<Login />, { route: '/login' });
+    const inputEmail = screen.getByTestId(/common_login__input-email/i);
+    const inputPass = screen.getByTestId(/common_login__input-password/i);
+    const loginButton = screen.getByTestId(/common_login__button-login/i);
 
-    // // const hiddenElement = screen.getByTestId(/common_login__element-invalid-email/i);
-    // await waitFor(() => {
-    //   const hiddenElement = screen.getByTestId(/common_login__element-invalid-email/i);
-    //   expect(hiddenElement).toBeInTheDocument();
-    //   expect(hiddenElement).toContain(/Invalid/i);
-    // });
+    await userEvent.type(inputEmail, 'adm@deliveryapp.com');
+    await userEvent.type(inputPass, '--adm2@21!!--');
+    await userEvent.click(loginButton);
 
-    // // await waitFor(() => {
-    // //   userEvent.click(loginBtn);
-    // // });
+    expect(localStorage.getItem('user')).toBe(JSON.stringify(response));
+    expect(navigateMock).toHaveBeenCalledWith('/admin/manage');
+  });
+  it('should navigate to "/customer/products" for any other role', async () => {
+    const navigateMock = jest.fn();
+    const response = { role: 'customer' };
+    useNavigate.mockReturnValue(navigateMock);
+    requestLogin.mockResolvedValueOnce(response);
 
-    // // const senhaErrada = screen.getByText(/Invalid email or password/i);
-    // // const senhaErrada = await screen.getByPlaceholderText(/Invalid email or password/i);
-    // // await waitFor(() => {
-    // //   expect(screen.getByText('Invalid email or password').toBeInTheDocument());
-    // // });
+    renderWithRouter(<Login />, { route: '/login' });
+    const inputEmail = screen.getByTestId(/common_login__input-email/i);
+    const inputPass = screen.getByTestId(/common_login__input-password/i);
+    const loginButton = screen.getByTestId(/common_login__button-login/i);
 
-    // // expect(hiddenElement).toBeInTheDocument();
-    // // expect(hiddenElement).toHaveValue(/Invalid email or password/i);
-    // // await expect(hiddenElement).toHaveValue('Invalid email or password');
-    // // expect(senhaErrada).toBeInTheDocument();
-    // // expect(senhaErrada.innerHTML).toBeInTheDocument();
-    // // await waitFor(() => {
-    // //   expect(screen.getByText(/Invalid email or password/i)).toBeInTheDocument();
-    // // });
+    await userEvent.type(inputEmail, 'zebirita@email.com');
+    await userEvent.type(inputPass, '$#zebirita#$');
+    await userEvent.click(loginButton);
+
+    expect(localStorage.getItem('user')).toBe(JSON.stringify(response));
+    expect(navigateMock).toHaveBeenCalledWith('/customer/products');
   });
 });
-
-// Links passados na mentoria pelo Ivan
-// https://app.betrybe.com/learn/course/5e938f69-6e32-43b3-9685-c936530fd326/module/095ebb0d-1932-4d37-933b-9e1d721646fb/section/89bf51d9-0bcc-4c9f-86a5-c7ff5df910bc/day/b848cbc2-853c-441f-8e2e-52c5f2467a4b/lesson/64cfeb60-cd2e-41f9-9cf3-612d758a35bd
-// https://www.youtube.com/watch?v=Ngj2f1n9pUw
