@@ -14,10 +14,10 @@ function AllUsersTable({ allUsers }) {
   ];
 
   useEffect(() => {
-    if (allUsers.length > 0) {
+    if (allUsers?.length > 0) {
       setAllUsersTable(allUsers);
     } else {
-      requestData('/admin/users').then((response) => {
+      requestData('/admin/users')?.then((response) => {
         setAllUsersTable(response);
       });
     }

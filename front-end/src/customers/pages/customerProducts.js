@@ -31,7 +31,7 @@ function CustomerProducts() {
     let isMounted = true;
 
     requestData('/products')
-      .then((result) => {
+      ?.then((result) => {
         if (isMounted) {
           setProducts(result);
         }

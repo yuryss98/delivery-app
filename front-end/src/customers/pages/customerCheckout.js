@@ -18,17 +18,17 @@ function CustomerCheckout() {
     let isMounted = true;
 
     requestData('/sellers')
-      .then((result) => {
+      ?.then((result) => {
         if (isMounted) {
           setSellers(result);
-          setSellerId(result[0].id);
+          setSellerId(result[0]?.id);
         }
       });
 
     return () => {
       isMounted = false;
     };
-  }, [sellers]);
+  }, []);
 
   function calculateTotalPrice(cart) {
     return cart.reduce(

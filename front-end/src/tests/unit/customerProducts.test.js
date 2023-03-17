@@ -43,7 +43,7 @@ describe('Customer Products Page test', () => {
     });
   });
   it('should render the name and navBar', async () => {
-    localStorage.setItem('user', JSON.stringify({ name: 'Test User' }));
+    localStorage.setItem('user', JSON.stringify({ name: 'Miguel' }));
     requestData.mockResolvedValueOnce(products);
 
     await act(async () => {
@@ -54,7 +54,7 @@ describe('Customer Products Page test', () => {
       expect(navBarElement).toBeInTheDocument();
 
       expect(screen.getByTestId('customer_products__element-navbar-user-full-name'))
-        .toHaveTextContent('Test User');
+        .toHaveTextContent('Miguel');
 
       expect(screen.getByTestId('customer_products__checkout-bottom-value'))
         .toHaveTextContent('0,00');

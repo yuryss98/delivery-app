@@ -97,13 +97,13 @@ describe('Testing Register Page', () => {
     });
   });
   it('Test if its possible to register a new user ', async () => {
-    const navigateMock = jest.fn();
+    const navigate = jest.fn();
     const user = {
       name: 'Miguel Vieira',
       email: 'miguel_vieira@trybe.com',
       password: '123456',
     };
-    useNavigate.mockReturnValue(navigateMock);
+    useNavigate.mockReturnValue(navigate);
     requestLogin.mockResolvedValueOnce(user);
 
     renderWithRouter(<Register />, { route: '/register' });
@@ -120,6 +120,6 @@ describe('Testing Register Page', () => {
 
     expect(requestLogin).toHaveBeenCalledWith('/register', user);
     expect(localStorage.getItem('user')).toBe(JSON.stringify(user));
-    expect(navigateMock).toHaveBeenCalledWith('/customer/products');
+    expect(navigate).toHaveBeenCalledWith('/customer/products');
   });
 });

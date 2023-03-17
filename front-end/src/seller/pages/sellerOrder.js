@@ -16,7 +16,7 @@ function SellerOrder() {
 
   useEffect(() => {
     requestData('/sales')
-      .then((response) => {
+      ?.then((response) => {
         setSales(response);
       });
     setNameFunc();

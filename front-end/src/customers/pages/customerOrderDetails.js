@@ -25,11 +25,11 @@ function CustomerOrderDetails() {
   };
 
   const four = 4;
-  const correctId = (paraId) => paraId.toString().padStart(four, '0');
+  const correctId = (paraId) => paraId?.toString().padStart(four, '0');
 
   useEffect(() => {
     requestData(`/sales/${id}`)
-      .then((response) => {
+      ?.then((response) => {
         setProducts(response);
         if (response.status === 'Em Trânsito') {
           setDisabled(false);
@@ -41,7 +41,7 @@ function CustomerOrderDetails() {
     if (getName) {
       setName(getName.name);
     }
-  }, [product]);
+  }, []);
 
   return (
     <div>
