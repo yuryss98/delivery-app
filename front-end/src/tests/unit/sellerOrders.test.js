@@ -16,11 +16,13 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('Seller Orders Page', () => {
-  beforeAll(() => {
+  afterEach(() => {
     jest.clearAllMocks();
+    localStorage.removeItem('user');
   });
 
   it('renders SellerOrders page', async () => {
+    localStorage.setItem('user', JSON.stringify({ name: 'Miguel' }));
     requestData.mockResolvedValue(
       [
         {
@@ -61,6 +63,8 @@ describe('Seller Orders Page', () => {
         .toBeInTheDocument();
       expect(screen.getByTestId('seller_orders__element-card-address-1'))
         .toHaveTextContent('Rua A, 123');
+
+      expect(localStorage.getItem('user')).toBe(JSON.stringify({ name: 'Miguel' }));
     });
   });
   it('should redirect if clicked in a order', async () => {
@@ -83,6 +87,9 @@ describe('Seller Orders Page', () => {
     await act(async () => {
       renderWithRouter(<SellerOrder />, { route: '/seller/orders' });
       await waitFor(() => expect(requestData).toHaveBeenCalled());
+
+      expect(screen.getByTestId('customer_products__element-navbar-user-full-name'))
+        .toHaveTextContent('usuario');
 
       await userEvent.click(screen.getByTestId('seller_orders__element-order-id-1'));
 

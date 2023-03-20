@@ -4,7 +4,7 @@ import Navbar from '../../customers/components/navBar';
 import SaleCard from '../components/sale';
 
 function SellerOrder() {
-  const [name, setName] = useState('');
+  const [name, setName] = useState('usuario');
   const [sales, setSales] = useState([]);
 
   const setNameFunc = () => {
