@@ -83,4 +83,31 @@ describe('Customer Products Page test', () => {
       });
     },
   );
+  it('', async () => {
+    requestData.mockResolvedValueOnce(products);
+
+    await act(async () => {
+      renderWithRouter(<CustomerProducts />, { route: 'customer/products' });
+      await waitFor(() => expect(requestData).toHaveBeenCalled());
+
+      const quantityInput = screen
+        .getByTestId('customer_products__input-card-quantity-1');
+
+      const minusButton = screen
+        .getByTestId('customer_products__button-card-rm-item-1');
+
+      await userEvent
+        .click(screen.getByTestId('customer_products__button-card-add-item-1'));
+
+      expect(quantityInput.value).toBe('1');
+
+      await userEvent.click(minusButton);
+
+      expect(quantityInput.value).toBe('0');
+
+      await userEvent.click(minusButton);
+
+      expect(quantityInput.value).toBe('0');
+    });
+  });
 });

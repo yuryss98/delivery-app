@@ -41,7 +41,12 @@ function CustomerOrderDetails() {
     if (getName) {
       setName(getName.name);
     }
-  }, []);
+  }, [disabled]);
+
+  const handleClick = async () => {
+    await requestUpdate(id, { status: 'Entregue' });
+    setDisabled(true);
+  };
 
   return (
     <div>
@@ -72,10 +77,7 @@ function CustomerOrderDetails() {
       <button
         type="button"
         data-testid="customer_order_details__button-delivery-check"
-        onClick={ (() => requestUpdate(
-          id,
-          { status: 'Entregue' },
-        )) }
+        onClick={ handleClick }
         disabled={ disabled }
       >
         MARCAR COMO ENTREGUE

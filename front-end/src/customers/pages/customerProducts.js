@@ -28,20 +28,12 @@ function CustomerProducts() {
   };
 
   useEffect(() => {
-    let isMounted = true;
-
     requestData('/products')
       ?.then((result) => {
-        if (isMounted) {
-          setProducts(result);
-        }
+        setProducts(result);
       });
 
     setNameFunc();
-
-    return () => {
-      isMounted = false;
-    };
   }, [setProducts]);
 
   return (

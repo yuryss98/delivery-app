@@ -6,7 +6,7 @@ import Navbar from '../../customers/components/navBar';
 function SellerDetails() {
   const [sale, setSale] = useState({});
   const [name, setName] = useState('');
-  const [isDisabledBtnPrepare, setIsDisabledBtnPrepare] = useState(true);
+  const [isDisabledBtnPrepare, setIsDisabledBtnPrepare] = useState(false);
   const [isDisabledBtnDelivery, setIsDisabledBtnDelivery] = useState(true);
   const [orderStatus, setOrderStatus] = useState('');
   const { id } = useParams('');
@@ -19,6 +19,7 @@ function SellerDetails() {
   const getSaleById = async () => {
     const data = await requestData(`/sales/${id}`);
     setSale(data);
+    console.log('data', data);
     return handleStatus(data.status);
   };
 
@@ -37,7 +38,7 @@ function SellerDetails() {
     getSaleById();
     const getName = JSON.parse(localStorage.getItem('user'));
     if (getName) setName(getName.name);
-  }, [sale]);
+  }, []);
 
   useEffect(() => {
     if (orderStatus === 'Pendente') {
@@ -62,84 +63,91 @@ function SellerDetails() {
     <div>
       <Navbar name={ name } />
       <h1>Detalhes do Pedido</h1>
-      <div data-testid={ `${prefix}element-order-details-label-order-id` }>
-        { correctId(sale.id) }
-      </div>
-      <div
-        data-testid={ `${prefix}element-order-details-label-order-date` }
-      >
-        { correctDate(sale.saleDate) }
-      </div>
-      <div
-        data-testid={ `${prefix}element-order-details-label-delivery-status` }
-      >
-        { orderStatus }
-      </div>
-      <button
-        type="button"
-        disabled={ isDisabledBtnPrepare }
-        onClick={ () => handleUpdateStatus('Preparando') }
-        data-testid={ `${prefix}button-preparing-check` }
-      >
-        PREPARAR PEDIDO
-      </button>
-      <button
-        type="button"
-        disabled={ isDisabledBtnDelivery }
-        onClick={ () => handleUpdateStatus('Em Trânsito') }
-        data-testid={ `${prefix}button-dispatch-check` }
-      >
-        SAIU PARA ENTREGA
-      </button>
-      <table>
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Descrição</th>
-            <th>Quantidade</th>
-            <th>Valor Unitário</th>
-            <th>Sub-total</th>
-          </tr>
-        </thead>
-        <tbody>
-          { sale.products && sale.products.map((item, index) => (
-            <tr key={ item.id }>
-              <td
-                data-testid={ `${prefix}element-order-table-item-number-${index}` }
+      { sale
+        && (
+          <>
+            <div data-testid={ `${prefix}element-order-details-label-order-id` }>
+              {correctId(sale.id)}
+            </div>
+            <div
+              data-testid={ `${prefix}element-order-details-label-order-date` }
+            >
+              {correctDate(sale.saleDate)}
+            </div>
+            <div
+              data-testid={ `${prefix}element-order-details-label-delivery-status` }
+            >
+              {orderStatus}
+            </div>
+            <button
+              type="button"
+              disabled={ isDisabledBtnPrepare }
+              onClick={ () => handleUpdateStatus('Preparando') }
+              data-testid={ `${prefix}button-preparing-check` }
+            >
+              PREPARAR PEDIDO
+            </button>
+            <button
+              type="button"
+              disabled={ isDisabledBtnDelivery }
+              onClick={ () => handleUpdateStatus('Em Trânsito') }
+              data-testid={ `${prefix}button-dispatch-check` }
+            >
+              SAIU PARA ENTREGA
+            </button>
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Descrição</th>
+                  <th>Quantidade</th>
+                  <th>Valor Unitário</th>
+                  <th>Sub-total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sale.products && sale.products.map((item, index) => (
+                  <tr key={ item.id }>
+                    <td
+                      data-testid={ `${prefix}element-order-table-item-number-${index}` }
+                    >
+                      {item.id}
+                    </td>
+                    <td
+                      data-testid={ `${prefix}element-order-table-name-${index}` }
+                    >
+                      {item.name}
+                    </td>
+                    <td
+                      data-testid={ `${prefix}element-order-table-quantity-${index}` }
+                    >
+                      {item.quantity}
+                    </td>
+                    <td
+                      data-testid={ `${prefix}element-order-table-unit-price-${index}` }
+                    >
+                      {`R$ ${item.price.replace('.', ',')}`}
+                    </td>
+                    <td
+                      data-testid={ `${prefix}element-order-table-sub-total-${index}` }
+                    >
+                      {`R$ ${(item.price * item.quantity).toFixed(2)}`.replace('.', ',')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <footer>
+              <p
+                data-testid={ `${prefix}element-order-total-price` }
               >
-                { item.id }
-              </td>
-              <td
-                data-testid={ `${prefix}element-order-table-name-${index}` }
-              >
-                { item.name }
-              </td>
-              <td
-                data-testid={ `${prefix}element-order-table-quantity-${index}` }
-              >
-                { item.quantity }
-              </td>
-              <td
-                data-testid={ `${prefix}element-order-table-unit-price-${index}` }
-              >
-                { `R$ ${item.price.replace('.', ',')}` }
-              </td>
-              <td
-                data-testid={ `${prefix}element-order-table-sub-total-${index}` }
-              >
-                {`R$ ${(item.price * item.quantity).toFixed(2)}`.replace('.', ',')}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <footer>
-        <p
-          data-testid={ `${prefix}element-order-total-price` }
-        >
-          { `${sale.totalPrice}`.replace('.', ',') }
-        </p>
-      </footer>
+                {`${sale.totalPrice}`.replace('.', ',')}
+              </p>
+            </footer>
+
+          </>
+        )}
+
     </div>
   );
 }
