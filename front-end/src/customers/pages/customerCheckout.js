@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ProductTable from '../components/productTable';
 import Navbar from '../components/navBar';
-import { requestLogin } from '../../utils/apiConnection';
+import { requestData, requestLogin } from '../../utils/apiConnection';
 
 function CustomerCheckout() {
   const [name, setName] = useState('usuario');
@@ -15,15 +14,21 @@ function CustomerCheckout() {
   const [sellerId, setSellerId] = useState('');
   const navigate = useNavigate();
 
-  const getSellers = async () => {
-    const { data } = await axios.get('http://localhost:3001/sellers');
-    setSellers(data);
-    setSellerId(data[0].id);
-  };
-
   useEffect(() => {
-    getSellers();
-  }, [setSellers]);
+    let isMounted = true;
+
+    requestData('/sellers')
+      ?.then((result) => {
+        if (isMounted) {
+          setSellers(result);
+          setSellerId(result[0]?.id);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   function calculateTotalPrice(cart) {
     return cart.reduce(

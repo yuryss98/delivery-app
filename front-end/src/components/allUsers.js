@@ -14,21 +14,21 @@ function AllUsersTable({ allUsers }) {
   ];
 
   useEffect(() => {
-    if (allUsers.length > 0) {
+    if (allUsers?.length > 0) {
       setAllUsersTable(allUsers);
     } else {
-      requestData('/admin/users').then((response) => {
-        setAllUsersTable(response);
+      requestData('/admin/users')?.then((response) => {
+        if (response) {
+          setAllUsersTable(response);
+        }
       });
     }
   }, [allUsers]);
 
-  const handleDeleteUser = (id) => {
-    requestDelete(`/admin/users/${id}`)
-      .then(() => {
-        const newAllUsersTable = allUsersTable.filter((user) => user.id !== id);
-        setAllUsersTable(newAllUsersTable);
-      });
+  const handleDeleteUser = async (id) => {
+    await requestDelete(`/admin/users/${id}`);
+    const newAllUsersTable = allUsersTable.filter((user) => user.id !== id);
+    setAllUsersTable(newAllUsersTable);
   };
 
   return (
@@ -47,7 +47,8 @@ function AllUsersTable({ allUsers }) {
         </thead>
         <tbody>
           {
-            allUsersTable.map((element, index) => (
+            allUsersTable
+            && allUsersTable.map((element, index) => (
               <tr key={ index }>
                 <th
                   data-testid={

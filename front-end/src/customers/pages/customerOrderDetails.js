@@ -25,11 +25,11 @@ function CustomerOrderDetails() {
   };
 
   const four = 4;
-  const correctId = (paraId) => paraId.toString().padStart(four, '0');
+  const correctId = (paraId) => paraId?.toString().padStart(four, '0');
 
   useEffect(() => {
     requestData(`/sales/${id}`)
-      .then((response) => {
+      ?.then((response) => {
         setProducts(response);
         if (response.status === 'Em Trânsito') {
           setDisabled(false);
@@ -41,7 +41,12 @@ function CustomerOrderDetails() {
     if (getName) {
       setName(getName.name);
     }
-  }, [product]);
+  }, [disabled]);
+
+  const handleClick = async () => {
+    await requestUpdate(id, { status: 'Entregue' });
+    setDisabled(true);
+  };
 
   return (
     <div>
@@ -72,10 +77,7 @@ function CustomerOrderDetails() {
       <button
         type="button"
         data-testid="customer_order_details__button-delivery-check"
-        onClick={ (() => requestUpdate(
-          id,
-          { status: 'Entregue' },
-        )) }
+        onClick={ handleClick }
         disabled={ disabled }
       >
         MARCAR COMO ENTREGUE

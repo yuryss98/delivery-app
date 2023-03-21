@@ -1,52 +1,74 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useNavigate } from 'react-router-dom';
+import { act } from 'react-dom/test-utils';
 import renderWithRouter from '../helpers/renderWithRouter';
-import App from '../../App';
+import AdminManageUsers from '../../admin/pages/adminManageUsers';
+import CustomerProducts from '../../customers/pages/customerProducts';
+import CustomerCheckout from '../../customers/pages/customerCheckout';
+import { requestData } from '../../utils/apiConnection';
+
+jest.mock('../../utils/apiConnection', () => ({
+  requestData: jest.fn(),
+}));
+
+jest.mock('react-router-dom', () => ({
+  useNavigate: jest.fn(),
+}));
 
 describe('Test navbar used on all pages', () => {
-  it('Test the common inputs', () => {
-    renderWithRouter(<App />, { route: '/customer/products' });
-
-    const productsBtn = screen.getByTestId(/customer_products__element-navbar-link-products/i);
-    const ordesBtn = screen.getByTestId(/customer_products__element-navbar-link-orders/i);
-    const nameBtn = screen.getByTestId(/customer_products__element-navbar-user-full-name/i);
-    const logoutBtn = screen.getByTestId(/customer_products__element-navbar-link-logout/i);
-
-    expect(productsBtn).toBeInTheDocument();
-    expect(ordesBtn).toBeInTheDocument();
-    expect(nameBtn).toBeInTheDocument();
-    expect(logoutBtn).toBeInTheDocument();
+  beforeAll(() => {
+    jest.clearAllMocks();
   });
 
-  it('test the specific titles for admin', () => {
-    renderWithRouter(<App />, { route: '/admin/manage' });
+  it('test the specific titles for admin', async () => {
+    requestData.mockResolvedValue([]);
 
-    const ordesBtn = screen.getByTestId(/customer_products__element-navbar-link-orders/i);
-    const gerenciarUsuarios = screen.getByText('GERENCIAR USUÁRIOS');
+    await act(async () => {
+      renderWithRouter(<AdminManageUsers />, { route: '/admin/manage' });
+      await waitFor(() => expect(requestData).toHaveBeenCalled());
 
-    expect(ordesBtn).toBeInTheDocument();
-    expect(gerenciarUsuarios).toBeInTheDocument();
+      const ordesBtn = screen.getByTestId(/customer_products__element-navbar-link-orders/i);
+      const gerenciarUsuarios = screen.getByText('GERENCIAR USUÁRIOS');
+
+      expect(ordesBtn).toBeInTheDocument();
+      expect(gerenciarUsuarios).toBeInTheDocument();
+    });
+  });
+
+  it('logs out when the "Sair" button is clicked', async () => {
+    localStorage.setItem('user', JSON.stringify({ name: 'Miguel' }));
+    const navigate = jest.fn();
+    useNavigate.mockReturnValue(navigate);
+
+    await act(async () => {
+      renderWithRouter(<CustomerProducts />, { route: 'customer/products' });
+      await waitFor(() => expect(requestData).toHaveBeenCalled());
+
+      const logoutButton = screen
+        .getByTestId('customer_products__element-navbar-link-logout');
+
+      await userEvent.click(logoutButton);
+      expect(localStorage.getItem('user')).toBe(null);
+      expect(navigate).toHaveBeenCalledWith('/login');
+    });
+  });
+
+  it('navigates to the products page when the "PRODUTOS" button is clicked', async () => {
+    const navigate = jest.fn();
+    useNavigate.mockReturnValue(navigate);
+    requestData.mockResolvedValue([]);
+
+    await act(async () => {
+      renderWithRouter(<CustomerCheckout />, { route: 'customer/checkout' });
+      await waitFor(() => expect(requestData).toHaveBeenCalled());
+
+      const productsButton = screen
+        .getByTestId('customer_products__element-navbar-link-products');
+
+      await userEvent.click(productsButton);
+      expect(navigate).toHaveBeenCalledWith('/customer/products');
+    });
   });
 });
-
-// Para testar as linhas abaixo preciso entrar na mentoria e descobrir quem é o substitudo do history.push e expect {pathname} na versão 6 do router-dom
-// const handleLogout = () => {
-//     localStorage.clear();
-//     navigate('/login');
-//   };
-
-//   const handleProductsClick = () => {
-//     if (currentRoute) {
-//       navigate('/customer/products');
-//     } else {
-//       navigate('/seller/order');
-//     }
-//   };
-
-//   const handleOrdersClick = () => {
-//     if (currentRoute) {
-//       navigate('/customer/orders');
-//     } else {
-//       navigate('/seller/orders');
-//     }
-//   };

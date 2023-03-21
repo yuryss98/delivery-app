@@ -36,11 +36,11 @@ function SaleCard({ props }) {
       </p>
 
       <p data-testid={ `seller_orders__element-card-price-${props.id}` }>
-        {`R$ ${props.totalPrice}`}
+        {`R$ ${props.totalPrice}`.replace('.', ',')}
       </p>
 
       <p data-testid={ `seller_orders__element-card-address-${props.id}` }>
-        {`${props.deliveryAddress} ${props.deliveryNumber}`}
+        {`${props.deliveryAddress}, ${props.deliveryNumber}`}
       </p>
     </div>
   );

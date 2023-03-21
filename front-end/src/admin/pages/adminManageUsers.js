@@ -6,7 +6,7 @@ import AllUsersTable from '../../components/allUsers';
 function AdminManageUsers() {
   const [err, setErr] = useState('');
   const [name, setName] = useState('');
-  const [admName, setAdmName] = useState('');
+  const [admName, setAdmName] = useState('usuario');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('seller');

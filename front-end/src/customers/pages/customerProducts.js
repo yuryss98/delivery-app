@@ -29,9 +29,10 @@ function CustomerProducts() {
 
   useEffect(() => {
     requestData('/products')
-      .then((result) => {
+      ?.then((result) => {
         setProducts(result);
       });
+
     setNameFunc();
   }, [setProducts]);
 
